@@ -1,0 +1,64 @@
+const mongoose = require('mongoose')
+
+const PPOSTSchema = mongoose.Schema({
+    post_title:{
+        type:String,
+        required: true,
+        validate: {
+            validator: value => value.length >= 3 && value.length <= 50,
+            message: 'Post title must be between 3 and 50 characters.'
+        }
+    },
+    post_topic:{
+        type:String,
+        required: true,
+        enum:['Politics', 'Health', 'Sport', 'Tech']
+    },
+   
+    likes_count:{
+        type:Number,
+        default:0,
+        validate: {
+            validator: value => value >= 0,
+            message: 'Likes count must be a non-negative number.'
+        }
+    },
+    dislikes_count:{
+        type:Number,
+        default:0,
+        validate: {
+            validator: value => value >= 0,
+            message: 'Dislikes count must be a non-negative number.'
+    },
+   },
+    comments:{
+        type:Array
+    },
+    
+    post_date:{
+        type:Date,
+        default:Date.now
+    },
+
+    post_owner:{
+        type:String
+    },
+
+    post_time:{
+        type:Date
+    },
+
+    post_owner_id:{
+        type:String
+    },
+
+    post_status:{
+        type:String,
+        enum: ['live', 'expired'],
+        default: 'live', // Set the default status to 'live'
+    }
+
+})
+
+
+module.exports = mongoose.model('posts',PPOSTSchema)

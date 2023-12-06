@@ -1,0 +1,273 @@
+
+const express = require('express')
+const router = express.Router()
+const my_mod = require('../models/PPOST')
+const verifyToken = require('../verifyToken')
+const User = require('../models/User')
+
+
+//get all the posts from the DB if only 'http://localhost:3000/piazzapost' is given
+router.get('/', verifyToken, async(req,res)=>{
+    try {
+     
+ // If any filter is given i.e to pick posts for a particular topic, then topic is set in topicFilter (http://localhost:3000/piazzapost?topic=Health)
+    const topicFilter = req.query.topic
+ // If more than one filter is given in query 'http://localhost:3000/piazzapost?topic=Health&status=expired' 
+    const statusFilter = req.query.status
+       
+    // Construct the base query object
+    const baseQuery = {};
+    
+    //  If a topic is specified, add it to the query
+      if (topicFilter) {
+        baseQuery.post_topic = topicFilter;
+     }
+    
+       
+    console.log('status',statusFilter)
+
+    console.log('base query',baseQuery)
+
+    // Use the constructed query object to find posts
+    const all_msgs = await my_mod.find(baseQuery)
+    
+    console.log('all', all_msgs)    
+
+    const result = {
+        activePosts: [],
+        expiredPosts: []
+    }
+
+    const currentDate = new Date()
+     
+    all_msgs.forEach(msg => {
+        if (msg.post_time && msg.post_time < currentDate) {
+            msg.post_status = 'expired'
+            console.log('code reached expired')
+            result.expiredPosts.push(msg)
+        } else {
+            msg.post_status = 'live'
+            console.log('code reached live')
+            result.activePosts.push(msg)
+        }
+    })
+        
+    if (statusFilter === 'live') {
+        if (result.activePosts.length === 0) {
+            return res.status(404).json({ message: 'No posts found.' });
+        } else{
+         res.status(200).json(result.activePosts);
+        }
+    } else if (statusFilter === 'expired') {
+        if (result.expiredPosts.length === 0) {
+            return res.status(404).json({ message: 'No posts found.' });
+        } else{
+        res.status(200).json(result.expiredPosts);
+        }
+    } else {
+        // If status is not specified, send the entire result
+        res.status(200).json(result);
+    } 
+
+    } catch (error) {
+        // Handle errors appropriately
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+     
+    })
+
+
+
+
+//get the data for a particular postID
+
+router.get('/:post_ID', verifyToken, async(req,res)=>{
+    const postId = await my_mod.findById(req.params.post_ID)
+// check if the post is expired       
+    const currentDate = new Date(); 
+
+// Check if the post is not found
+      if (!postId) {
+          return res.status(404).send({ message: 'Post not found.' });
+      }
+      
+      if (postId.post_time && postId.post_time < currentDate) {
+         postId.post_status = 'expired'
+      } else {
+        postId.post_status = 'live'
+      }
+      
+
+    res.send(postId)    
+    console.log('testid')
+})
+
+
+
+
+//get data by postId and like a comment
+
+router.post('/:post_ID/like', verifyToken, async(req,res)=>{
+     try{
+        const postById = await my_mod.findById(req.params.post_ID)  
+        
+ // check if the post is expired       
+        const currentDate = new Date(); 
+
+  // Check if the post is not found
+        if (!postById) {
+            return res.status(404).send({ message: 'Post not found.' })
+        }
+        
+        if (postById.post_time && postById.post_time < currentDate) {
+            return res.status(403).send({ message: 'This post has expired and cannot be liked.' })
+        }
+        
+        // Check if the post_owner is the same as the authenticated user
+        if (req.user && postById.post_owner_id === req.user._id) {
+           
+        return res.status(400).send({ message: "You cannot like your own post." })
+        }
+         
+        
+        if (postById.post_time && postById.post_time < currentDate) {
+                postById.post_status = 'expired'
+        } else {
+                postById.post_status = 'live'
+        }
+            postById.likes_count = postById.likes_count+1
+            const updatedPost = await postById.save()
+            res.send(updatedPost)
+
+        }
+         
+    catch(err){
+        res.send({message:err})
+    }
+})
+
+
+// get data by post_Id and dislike a comment
+router.post('/:post_ID/dislikes', verifyToken, async(req,res)=>{
+ //   try{
+        const postById = await my_mod.findById(req.params.post_ID)    
+        
+        
+// check if the post is expired       
+        const currentDate = new Date(); 
+
+// Check if the post is not found
+        if (!postById) {
+            return res.status(404).send({ message: 'Post not found.' });
+        }
+        
+        if (postById.post_time && postById.post_time < currentDate) {
+            return res.status(403).send({ message: 'This post has expired and cannot be disliked.' });
+        }
+
+        if (postById.post_time && postById.post_time < currentDate) {
+            postById.post_status = 'expired'
+         } else {
+            postById.post_status = 'live'
+         }
+
+        postById.dislikes_count = postById.dislikes_count+1
+        const updatedPost = await postById.save()
+        res.send(updatedPost)
+//    }
+//catch(err){
+//        res.send({message:err})
+//   }
+
+})
+
+
+
+// get data by post_Id and pass a comment
+
+router.post('/:post_ID/comment', verifyToken, async(req,res)=>{
+ //   try{
+        const postData = new my_mod ({
+        comments:req.body.comments,
+        });
+
+        const postById = await my_mod.findById(req.params.post_ID)    
+
+        // check if the post is expired       
+        const currentDate = new Date(); 
+
+        // Check if the post is not found
+        if (!postById) {
+            return res.status(404).send({ message: 'Post not found.' });
+        }
+
+        if (postById.post_time && postById.post_time < currentDate) {
+            return res.status(403).send({ message: 'This post has expired and comments cannot be added.' });
+        }
+
+        if (req.user && postById.post_owner_id === req.user._id) {
+           
+            return res.status(400).send({ message: "You cannot comment your own post." })
+            }
+        // Ensure 'comments' is initialized as an array
+        postById.comments = postById.comments || [];
+           
+        
+        const newComment = req.body.comments
+        postById.comments.push(newComment)
+        const updatedPost = await postById.save()
+        res.send(updatedPost)
+//    }
+//catch(err){
+//        res.send({message:err})
+//   }
+
+})
+
+
+
+
+
+
+
+// POST (Create data) post a comment
+router.post('/', verifyToken, async(req,res)=>{
+    console.log(req.body)
+    
+    // Extract user ID from req.user
+    
+    const userId = req.user._id;
+
+    const postData = new my_mod ({
+        post_title:req.body.post_title,
+        post_topic:req.body.post_topic,
+        post_owner:req.body.post_owner,
+        post_owner_id: userId,
+        post_time:req.body.post_time,
+        post_status:req.body.post_status
+    });
+    // try to insert...
+    try{
+        const postToSave = await postData.save()
+        res.send(postToSave)
+    }catch(err){
+        res.send({message:err})
+    }
+})
+
+
+
+//Deleting a post by id (DELETE)
+router.post('/:post_ID/delete',verifyToken,async(req,res)=>{
+    try{
+        console.log('test delete')
+        const deletePostById = await my_mod.deleteOne({_id:req.params.post_ID})
+        res.send(deletePostById)
+    }catch(err){
+        res.send({message:err})
+    }
+}) 
+
+module.exports = router
+
