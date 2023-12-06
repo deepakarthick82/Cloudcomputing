@@ -3,7 +3,6 @@ const mongoose = require('mongoose')
 const PPOSTSchema = mongoose.Schema({
     post_title:{
         type:String,
-        required: true,
         validate: {
             validator: value => value.length >= 3 && value.length <= 50,
             message: 'Post title must be between 3 and 50 characters.'
@@ -11,7 +10,7 @@ const PPOSTSchema = mongoose.Schema({
     },
     post_topic:{
         type:String,
-        required: true,
+   //     required: true,
         enum:['Politics', 'Health', 'Sport', 'Tech']
     },
    

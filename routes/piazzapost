@@ -24,14 +24,11 @@ router.get('/', verifyToken, async(req,res)=>{
      }
     
        
-    console.log('status',statusFilter)
-
-    console.log('base query',baseQuery)
-
+    
     // Use the constructed query object to find posts
     const all_msgs = await my_mod.find(baseQuery)
     
-    console.log('all', all_msgs)    
+    //console.log('all', all_msgs)    
 
     const result = {
         activePosts: [],
@@ -43,7 +40,6 @@ router.get('/', verifyToken, async(req,res)=>{
     all_msgs.forEach(msg => {
         if (msg.post_time && msg.post_time < currentDate) {
             msg.post_status = 'expired'
-            console.log('code reached expired')
             result.expiredPosts.push(msg)
         } else {
             msg.post_status = 'live'
@@ -150,7 +146,7 @@ router.post('/:post_ID/like', verifyToken, async(req,res)=>{
 
 // get data by post_Id and dislike a comment
 router.post('/:post_ID/dislikes', verifyToken, async(req,res)=>{
- //   try{
+    try{
         const postById = await my_mod.findById(req.params.post_ID)    
         
         
@@ -175,11 +171,10 @@ router.post('/:post_ID/dislikes', verifyToken, async(req,res)=>{
         postById.dislikes_count = postById.dislikes_count+1
         const updatedPost = await postById.save()
         res.send(updatedPost)
-//    }
-//catch(err){
-//        res.send({message:err})
-//   }
-
+     }
+  catch(err){
+       res.send({message:err})
+    }
 })
 
 
@@ -187,7 +182,7 @@ router.post('/:post_ID/dislikes', verifyToken, async(req,res)=>{
 // get data by post_Id and pass a comment
 
 router.post('/:post_ID/comment', verifyToken, async(req,res)=>{
- //   try{
+     try{
         const postData = new my_mod ({
         comments:req.body.comments,
         });
@@ -218,17 +213,12 @@ router.post('/:post_ID/comment', verifyToken, async(req,res)=>{
         postById.comments.push(newComment)
         const updatedPost = await postById.save()
         res.send(updatedPost)
-//    }
-//catch(err){
-//        res.send({message:err})
-//   }
+    }
+ catch(err){
+       res.send({message:err})
+  }
 
 })
-
-
-
-
-
 
 
 // POST (Create data) post a comment

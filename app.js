@@ -24,7 +24,6 @@ app.get('/', (req,res)=>{
 const MURL = 'mongodb+srv://deepakarthick2022:cloud1234@cluster0.vqy4urh.mongodb.net/piazza?retryWrites=true&w=majority'
 mongoose.connect(MURL)
 
-
 app.listen(3000, ()=>{
     console.log('Your server is up and running...')
 })
