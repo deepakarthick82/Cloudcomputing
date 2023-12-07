@@ -43,7 +43,7 @@ router.get('/', verifyToken, async(req,res)=>{
             result.expiredPosts.push(msg)
         } else {
             msg.post_status = 'live'
-            console.log('code reached live')
+  //          console.log('code reached live')
             result.activePosts.push(msg)
         }
     })
@@ -62,7 +62,8 @@ router.get('/', verifyToken, async(req,res)=>{
         }
     } else {
         // If status is not specified, send the entire result
-        res.status(200).json(result);
+      //  res.status(200).json(result);
+          res.send(all_msgs)
     } 
 
     } catch (error) {
