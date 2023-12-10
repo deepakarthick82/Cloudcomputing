@@ -13,7 +13,8 @@
 6.The posts can be retrieved by a particular topic
 
 
-File Details
+File Details:
+
 1.app.js file: This is the entry point to the application where middleware is created, API endpoints are mapped, connection to MongoDB is established and finally the server is set on port 3000. 
 2. models folder: Includes the files to create the model to define each database structure 
 #a. Post.js: A schema to define the posts database table and export the model. 
