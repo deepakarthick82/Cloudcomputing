@@ -16,20 +16,22 @@
 File Details
 1.app.js file: This is the entry point to the application where middleware is created, API endpoints are mapped, connection to MongoDB is established and finally the server is set on port 3000. 
 2. models folder: Includes the files to create the model to define each database structure 
-a. Post.js: A schema to define the posts database table and export the model. 
+#a. Post.js: A schema to define the posts database table and export the model. 
  Post_title – String – given by user
-	Post_topic – Enum and holds four values ‘Politics’ , ‘Sport’, ‘Health’ and ‘Tech’
-	Likes_count – Every time a post is liked, the counter is increased.
-	Dislikes_count - Every time a post is disliked, the counter is increased.
-	Comments – creates an array of comments when input by the user.
-	Post_date – created by the system for every post
-	Post_time – expiry date time set for each post. 
-	Post_owner_id – created from the login authentication token to identify post owner.
-	Post_status – Enum can hold ‘live’ and ‘expired’ calculated by the system. Defaults live and sets it to expired if current date > post_time.
-a.	User.js: A schema to define the user’s database table and export the model. 
-	Username – String and needs to be minimum 3 char and max 256, mandatory
-	Email – email address and min 6 characters, mandatory
-	password – string, min 6 characters, mandatory.
+#b.Post_topic – Enum and holds four values ‘Politics’ , ‘Sport’, ‘Health’ and ‘Tech’
+#c.	Likes_count – Every time a post is liked, the counter is increased.
+#d.	Dislikes_count - Every time a post is disliked, the counter is increased.
+#e.	Comments – creates an array of comments when input by the user.
+#f.	Post_date – created by the system for every post
+#g.	Post_time – expiry date time set for each post. 
+#h.Post_owner_id – created from the login authentication token to identify post owner.
+#i.	Post_status – Enum can hold ‘live’ and ‘expired’ calculated by the system. Defaults live and sets it to expired if current date > post_time.
+
+
+##a.	User.js: A schema to define the user’s database table and export the model. 
+ a.Username – String and needs to be minimum 3 char and max 256, mandatory
+ b.	Email – email address and min 6 characters, mandatory
+ c.	password – string, min 6 characters, mandatory.
 
 3. routes folder: Files to create the routes to the api endpoints 
 a. posts.js: Imports the Post schema model and do the following operations with user authentication. 
