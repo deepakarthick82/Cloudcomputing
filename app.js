@@ -9,6 +9,7 @@ const piazzaRoute = require('./routes/piazzapost')
 
 const authRoute = require('./routes/auth')
 
+
 app.use(bodyParser.json())
 
 

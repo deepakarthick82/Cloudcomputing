@@ -6,6 +6,14 @@ const verifyToken = require('../verifyToken')
 const User = require('../models/User')
 
 
+
+// Function to calculate the sum of likes and dislikes for a post
+function calculateLikesAndDislikesSum(post) {
+    const likes = post.likes_count|| 0;
+    const dislikes = post.dislikes_count || 0
+    return likes + dislikes
+}
+
 //get all the posts from the DB if only 'http://localhost:3000/piazzapost' is given
 router.get('/', verifyToken, async(req,res)=>{
     try {
@@ -74,7 +82,34 @@ router.get('/', verifyToken, async(req,res)=>{
      
     })
 
+//Get the most trending post
 
+router.get('/trending', verifyToken, async (req, res) => {
+     
+    try {
+        // Your existing code to fetch all posts
+        const all_msgs = await my_mod.find()
+
+        
+        // Calculate the sum of likes and dislikes for each post
+        const postsWithSums = all_msgs.map(post => ({
+            ...post.toObject(),
+            likesAndDislikesSum: calculateLikesAndDislikesSum(post)
+        }));
+
+        
+        // Sort the posts based on the sum of likes and dislikes in descending order
+        const sortedPosts = postsWithSums.sort((a, b) => b.likesAndDislikesSum - a.likesAndDislikesSum)
+
+        // Send the sorted posts as the response
+        res.status(200).json(sortedPosts)
+
+    } catch (error) {
+        // Handle errors appropriately
+        console.error(error)
+        res.status(500).send('Internal Server Error')
+    }
+})
 
 
 //get the data for a particular postID
