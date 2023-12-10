@@ -82,7 +82,7 @@ router.get('/', verifyToken, async(req,res)=>{
      
     })
 
-//Get the most trending post
+//Get the most trending post based on the total number of likes and dislikes in a post
 
 router.get('/trending', verifyToken, async (req, res) => {
      
@@ -273,7 +273,7 @@ router.post('/', verifyToken, async(req,res)=>{
         post_time:req.body.post_time,
         post_status:req.body.post_status
     });
-    // try to insert...
+    
     try{
         const postToSave = await postData.save()
         res.send(postToSave)

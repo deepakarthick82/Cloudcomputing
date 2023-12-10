@@ -1,7 +1,7 @@
 
-const express = require('express');
-const router = express.Router();
-const User = require('../models/User');
+const express = require('express')
+const router = express.Router()
+const User = require('../models/User')
 
 
 
@@ -14,8 +14,8 @@ const jsonwebtoken = require('jsonwebtoken')
 // get all user data
 router.get('/', async (req, res) => {
     const all_msgs = await User.find();
-    res.send(all_msgs);
-    console.log('testb');
+    res.send(all_msgs)
+    console.log('testb')
 });
 
 
@@ -64,6 +64,7 @@ console.log(registerValidation(req.body))
 })
 
 
+// To login and check if it is registered user
 router.post('/login', async(req,res)=>{
    try{ 
     const {error} = loginValidation(req.body)
